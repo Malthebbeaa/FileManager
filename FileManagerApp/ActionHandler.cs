@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Spectre.Console;
 
 namespace FileManagerApp;
@@ -63,6 +64,32 @@ public class ActionHandler
         else
         {
             File.Move(path, newFullPath);
+        }
+    }
+
+    public static void OpenFile(FileItem fileItem)
+    {
+        try
+        {
+            string extension = Path.GetExtension(fileItem.FullPath);
+
+            switch (extension)
+            {
+                case ".cs":
+                    Process.Start("rider",fileItem.FullPath);
+                    break;
+                case ".java":
+                    Process.Start("idea",fileItem.FullPath);
+                    break;
+                case ".js" or ".sql":
+                    Process.Start("code",fileItem.FullPath);
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
         }
     }
 }

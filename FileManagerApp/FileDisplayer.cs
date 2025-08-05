@@ -44,7 +44,16 @@ public class FileDisplayer
             .BorderColor(Color.Grey)
             .Padding(1, 0);
     }
-    
+
+    public static Panel CreatePreview()
+    {
+        var panel = new Panel("File Preview")
+            .Border(BoxBorder.Rounded)
+            .BorderColor(Color.Grey)
+            .Padding(1, 0);
+        
+        return panel;
+    }
     static string GetFileIcon(string fileName)
     {
         var extension = Path.GetExtension(fileName).ToLower();
@@ -64,5 +73,9 @@ public class FileDisplayer
             _ => "📄"
         };
     }
-    
+
+    public static Panel ShowCurrentPath(string path)
+    {
+        return new Panel(new Markup($"[bold blue]Current path: {path}[/]")).Border(BoxBorder.Rounded).BorderColor(Color.Cyan1);
+    }
 }
