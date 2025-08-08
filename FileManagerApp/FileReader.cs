@@ -85,13 +85,13 @@ public class FileReader
         return choices;
     }
 
-    public static List<FileItem> GetDirectoryContents(string paht)
+    public static List<FileItem> GetDirectoryContents(string path)
     {
         var items = new List<FileItem>();
 
         try
         {
-            var directoryInfo = new DirectoryInfo(paht);
+            var directoryInfo = new DirectoryInfo(path);
 
             foreach (var dir in directoryInfo.GetDirectories())
             {

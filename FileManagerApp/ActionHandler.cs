@@ -5,7 +5,7 @@ namespace FileManagerApp;
 
 public class ActionHandler
 {
-    public static FileItem Create(string path)
+    public static FileItem CreateFileItem(string path)
     {
         Console.Clear();
         var type = AnsiConsole.Prompt(new SelectionPrompt<string>()
@@ -22,9 +22,20 @@ public class ActionHandler
             Modified = DateTime.Today.ToString("yyyy-MM-dd HH:mm"),
             Size = type == "File" ? "0 B" : "-"
         };
-
-
+        
         return fileItem;
+    }
+
+    public static void Create(FileItem fileItem)
+    {
+        if (fileItem.IsDirectory)
+        {
+            Directory.CreateDirectory(fileItem.FullPath);
+        }
+        else
+        {
+            File.Create(fileItem.FullPath).Close();
+        }
     }
 
     public static void Delete(FileItem fileItem)
@@ -48,7 +59,7 @@ public class ActionHandler
         }
     }
 
-    public static void RenameFile(FileItem fileItem)
+    public static void Rename(FileItem fileItem)
     {
         Console.Clear();
         var path = fileItem.FullPath;
@@ -67,22 +78,25 @@ public class ActionHandler
         }
     }
 
-    public static void OpenFile(FileItem fileItem)
+    public static void OpenInEditor(FileItem fileItem)
     {
         try
         {
-            string extension = Path.GetExtension(fileItem.FullPath);
+            var editor = ChooseEditor();
 
-            switch (extension)
+            switch (editor)
             {
-                case ".cs":
-                    Process.Start("rider",fileItem.FullPath);
+                case "Rider":
+                    Process.Start("open", $"-na \"/Applications/Rider.app\" --args \"{fileItem.FullPath}\"");
                     break;
-                case ".java":
-                    Process.Start("idea",fileItem.FullPath);
+                case "IntelliJ":
+                    Process.Start("open", $"-na \"/Users/malthebrahebjerregaard/Applications/IntelliJ IDEA.app\" --args \"{fileItem.FullPath}\"");
                     break;
-                case ".js" or ".sql":
+                 case "VS Code":
                     Process.Start("code",fileItem.FullPath);
+                    break;
+                default:
+                    Process.Start("code",  fileItem.FullPath);
                     break;
             }
         }
@@ -91,5 +105,14 @@ public class ActionHandler
             Console.WriteLine(e);
             throw;
         }
+    }
+
+    static string ChooseEditor()
+    {
+        var editor = AnsiConsole.Prompt(new SelectionPrompt<string>()
+            .Title("Which editor do you want to open?")
+            .PageSize(5)
+            .AddChoices(["VS Code", "IntelliJ", "Rider"]));
+        return editor;
     }
 }

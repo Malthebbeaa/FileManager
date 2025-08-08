@@ -4,9 +4,9 @@ namespace FileManagerApp;
 
 public class FileManager
 {
-    private bool exitRequested = false;
-    private int selectedIndex = 0;
-    private List<FileItem> files = new List<FileItem>();
+    private bool exitRequested;
+    private int selectedIndex;
+    private List<FileItem> files;
     private string directoryPath;
     public void Start(string path)
     {
@@ -27,8 +27,8 @@ public class FileManager
             AnsiConsole.Write(panel);
             ShowControls();
 
-            AnsiConsole.Write(previewPanel);
-            // Handle keyboard input
+            //AnsiConsole.Write(previewPanel);
+
             var key = Console.ReadKey(true);
             HandleKeyEvent(key);
         }
@@ -38,7 +38,7 @@ public class FileManager
     {
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine(
-            "[dim]Use [/][bold]↑/↓[/][dim] or [/][bold]K/J[/][dim] Move | [/][bold]Enter[/][dim] Open | [/][bold]R[/][dim] Rename | [/][bold]A[/][dim] Add | [/][bold]D[/][dim] Delete | [/][bold]Backspace[/][dim] Go Back | [/][bold]Q[/][dim] Quit[/]");
+            "[dim]Use [/][bold]↑/↓[/][dim] Move | [/][bold]Enter[/][dim] Enter File/Dir | [/][bold]Space[/][dim] Open in Editor |[/][bold]R[/][dim] Rename | [/][bold]A[/][dim] Add | [/][bold]D[/][dim] Delete | [/][bold]Backspace[/][dim] Go Back | [/][bold]Q[/][dim] Quit[/]");
     }
 
     void HandleKeyEvent(ConsoleKeyInfo key)
@@ -46,12 +46,15 @@ public class FileManager
         switch (key.Key)
             {
                 case ConsoleKey.UpArrow:
-                case ConsoleKey.K:
                     if (selectedIndex > 0) selectedIndex--;
+                    break;
+                
+                case ConsoleKey.Spacebar:
+                    var selectedFileItem = files[selectedIndex];
+                    ActionHandler.OpenInEditor(selectedFileItem);
                     break;
 
                 case ConsoleKey.DownArrow:
-                case ConsoleKey.J:
                     if (selectedIndex < files.Count - 1) selectedIndex++;
                     break;
 
@@ -73,10 +76,6 @@ public class FileManager
                                 Console.ReadKey();
                             }
                         }
-                        else
-                        {
-                            ActionHandler.OpenFile(selectedFile);
-                        }
                     }
 
 
@@ -93,16 +92,8 @@ public class FileManager
                     break;
 
                 case ConsoleKey.A:
-                    FileItem fileItem = ActionHandler.Create(directoryPath);
-                    if (fileItem.IsDirectory)
-                    {
-                        Directory.CreateDirectory(fileItem.FullPath);
-                    }
-                    else
-                    {
-                        File.Create(fileItem.FullPath).Close();
-                    }
-
+                    FileItem fileItem = ActionHandler.CreateFileItem(directoryPath);
+                    ActionHandler.Create(fileItem);
                     break;
                 case ConsoleKey.D:
                     FileItem fileItemToRemove = files[selectedIndex];
@@ -115,7 +106,7 @@ public class FileManager
 
                 case ConsoleKey.R:
                     FileItem fileItemToRename = files[selectedIndex];
-                    ActionHandler.RenameFile(fileItemToRename);
+                    ActionHandler.Rename(fileItemToRename);
                     break;
             }
     }
